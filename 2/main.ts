@@ -1,4 +1,4 @@
-const input = await Deno.readTextFile('./input2')
+const input = await Deno.readTextFile('./input')
 const parsedInput = input.split('\n')
 parsedInput.pop()
 
