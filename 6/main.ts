@@ -39,135 +39,103 @@ for (let y = 0; y < parsedInput.length; y++) {
   }
 }
 
-console.log('starting at ', position)
+const startPos = JSON.parse(JSON.stringify(position))
+console.log('starting at ', startPos)
 
-function walkNorth() {
-  for (let y = position.y; y >= 0; y--) {
-    if (y === 0) {
-      position.y = y
-      position.leaving = true
-      break
-    }
-    const next = parsedInput[y - 1][position.x]
-    if (next !== '#') {
-      parsedInput[y] = parsedInput[y]
-        .split('')
-        .toSpliced(position.x, 1, 'X')
-        .join('')
-    } else {
-      position.y = y
-      position.facing = Direction.East
-      // position.leaving = true
-      // parsedInput[position.y] = parsedInput[position.y]
-      //   .split('')
-      //   .toSpliced(position.x, 1, position.facing)
-      //   .join('')
-      break
-    }
-  }
-}
+// const lastThree: Position[] = new Array(3)
 
-function walkSouth() {
-  for (let y = position.y; y <= maxY; y++) {
-    if (y === maxY) {
-      position.y = y
-      position.leaving = true
-      break
-    }
-    const next = parsedInput[y + 1][position.x]
-    if (next !== '#') {
-      parsedInput[y] = parsedInput[y].split('').toSpliced(position.x, 1, 'X')
-        .join('')
-    } else {
-      position.y = y
-      position.facing = Direction.West
-      // position.leaving = true
-      // parsedInput[position.y] = parsedInput[position.y]
-      //   .split('')
-      //   .toSpliced(position.x, 1, position.facing)
-      //   .join('')
-      break
-    }
-  }
-}
-
-function walkEast() {
-  for (let x = position.x; x <= maxX; x++) {
-    if (x === maxX) {
-      position.x = x
-      position.leaving = true
-      break
-    }
-    const next = parsedInput[position.y][x + 1]
-    if (next !== '#') {
-      parsedInput[position.y] = parsedInput[position.y]
-        .split('')
-        .toSpliced(x, 1, 'X')
-        .join('')
-    } else {
-      position.x = x
-      position.facing = Direction.South
-      // position.leaving = true
-      // parsedInput[position.y] = parsedInput[position.y]
-      //   .split('')
-      //   .toSpliced(position.x, 1, position.facing)
-      //   .join('')
-      break
-    }
-  }
-}
-
-function walkWest() {
-  for (let x = position.x; x >= 0; x--) {
-    if (x === 0) {
-      position.x = x
-      position.leaving = true
-      break
-    }
-    const next = parsedInput[position.y][x - 1]
-    if (next !== '#') {
-      parsedInput[position.y] = parsedInput[position.y].split('').toSpliced(
-        x,
-        1,
-        'X',
-      ).join('')
-    } else {
-      position.x = x
-      position.facing = Direction.North
-      // position.leaving = true
-      // parsedInput[position.y] = parsedInput[position.y]
-      //   .split('')
-      //   .toSpliced(position.x, 1, position.facing)
-      //   .join('')
-      break
-    }
-  }
-}
-
-function* go() {
+function guard() {
   while (!position.leaving) {
-    yield walkNorth()
-    yield walkEast()
-    yield walkSouth()
-    yield walkWest()
+    switch (position.facing) {
+      // north
+      case '^': {
+        if (position.y === 0) {
+          position.leaving = true
+          break
+        }
+        const next = parsedInput[position.y - 1][position.x]
+        if (next !== '#') {
+          parsedInput[position.y] = parsedInput[position.y]
+            .split('')
+            .toSpliced(position.x, 1, 'X')
+            .join('')
+          position.y--
+        } else {
+          position.facing = Direction.East
+        }
+        break
+      }
+
+      // south
+      case 'v': {
+        if (position.y === maxY) {
+          position.leaving = true
+          break
+        }
+        const next = parsedInput[position.y + 1][position.x]
+        if (next !== '#') {
+          parsedInput[position.y] = parsedInput[position.y]
+            .split('')
+            .toSpliced(position.x, 1, 'X')
+            .join('')
+          position.y++
+        } else {
+          position.facing = Direction.West
+          break
+        }
+        break
+      }
+
+      // east
+      case '>': {
+        if (position.x === maxX) {
+          position.leaving = true
+          break
+        }
+        const next = parsedInput[position.y][position.x + 1]
+        if (next !== '#') {
+          parsedInput[position.y] = parsedInput[position.y]
+            .split('')
+            .toSpliced(position.x, 1, 'X')
+            .join('')
+          position.x++
+        } else {
+          position.facing = Direction.South
+          break
+        }
+        break
+      }
+
+      // west
+      case '<': {
+        if (position.x === 0) {
+          position.leaving = true
+          break
+        }
+        const next = parsedInput[position.y][position.x - 1]
+        if (next !== '#') {
+          parsedInput[position.y] = parsedInput[position.y]
+            .split('')
+            .toSpliced(position.x, 1, 'X')
+            .join('')
+          position.x--
+        } else {
+          position.facing = Direction.North
+          break
+        }
+        break
+      }
+    }
+
+    // lastThree.push(position)
+    // lastThree.shift()
   }
   parsedInput[position.y] = parsedInput[position.y]
     .split('')
-    // .toSpliced(position.x, 1, position.facing)
     .toSpliced(position.x, 1, 'X')
     .join('')
 }
-go().forEach(() => {})
-// console.log(position, parsedInput)
-console.log('final position ', position)
-let distinct = 0
-for (const line of parsedInput) {
-  for (const char of line) {
-    if (char === 'X') {
-      distinct++
-    }
-  }
-}
-console.log(distinct)
 
+guard()
+console.log('final position ', position)
 Deno.writeTextFile('./output', parsedInput.join('\n'))
