@@ -42,7 +42,22 @@ for (let y = 0; y < parsedInput.length; y++) {
 const startPos = JSON.parse(JSON.stringify(position))
 console.log('starting at ', startPos)
 
-// const lastThree: Position[] = new Array(3)
+const lastThree: Position[] = new Array(3)
+function logTurn() {
+  lastThree.push(position)
+  lastThree.shift()
+}
+
+const potentialObstructions: Position[] = []
+function checkLoop() {
+  if (
+    (lastThree[0].x === lastThree[1].x || lastThree[0].y === lastThree[1].y) &&
+    (lastThree[1].x === lastThree[2].x || lastThree[1].y === lastThree[2].y) &&
+    (lastThree[2].x === position.x || lastThree[2].y === position.y)
+  ) {
+    potentialObstructions.push(position)
+  }
+}
 
 function guard() {
   while (!position.leaving) {
@@ -62,6 +77,7 @@ function guard() {
           position.y--
         } else {
           position.facing = Direction.East
+          logTurn()
         }
         break
       }
@@ -81,7 +97,7 @@ function guard() {
           position.y++
         } else {
           position.facing = Direction.West
-          break
+          logTurn()
         }
         break
       }
@@ -101,7 +117,7 @@ function guard() {
           position.x++
         } else {
           position.facing = Direction.South
-          break
+          logTurn()
         }
         break
       }
@@ -121,14 +137,10 @@ function guard() {
           position.x--
         } else {
           position.facing = Direction.North
-          break
         }
         break
       }
     }
-
-    // lastThree.push(position)
-    // lastThree.shift()
   }
   parsedInput[position.y] = parsedInput[position.y]
     .split('')
